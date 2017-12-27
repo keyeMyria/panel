@@ -26,6 +26,7 @@ import validatorjs from 'validatorjs';
 import MobxReactForm from 'mobx-react-form';
 import styles from './style.module.css';
 import DockerBuilder from './DockerBuilder';
+import LoadBalancer from './LoadBalancer';
 
 @inject("store") @observer
 @graphql(gql`
@@ -304,6 +305,22 @@ export default class Extensions extends React.Component {
               handleClose={this.handleCloseAvailableExtensionsDrawer.bind(this)}
               viewType="edit" />
           </Grid>)
+      case "LoadBalancerView":
+      this.setState({ customComponentExists: true })
+      return (
+        <Grid spacing={24}>
+          <LoadBalancer
+            project={this.props.data.project}
+            extensionSpec={extensionSpec}
+            store={this.props.store}
+            config={this.form}
+            match={this.props.match}
+            createExtension={this.props.createExtension.bind(this)}
+            updateExtension={this.props.updateExtension.bind(this)}
+            refetch={this.props.data.refetch}
+            onCancel={this.handleCloseAvailableExtensionsDrawer.bind(this)}
+            viewType="edit" />
+        </Grid>)          
       default:
         return (<div></div>);
     }

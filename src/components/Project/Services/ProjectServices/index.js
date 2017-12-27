@@ -544,7 +544,6 @@ query Project($slug: String, $environmentId: String){
       created
     }
   }
-
 }
 `
 
