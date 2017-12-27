@@ -39,7 +39,6 @@ const inlineStyles = {
   }
 }
 
-@inject("store") @observer
 @graphql(gql`
 query Project($slug: String, $environmentId: String) {
   project(slug: $slug, environmentId: $environmentId) {
@@ -132,6 +131,7 @@ mutation DeleteService ($id: String, $projectId: String!, $command: String!, $na
     id
   }
 }`, { name: "deleteService" })
+@inject("store") @observer
 export default class Services extends React.Component {
   constructor(props){
     super(props)
@@ -158,13 +158,11 @@ export default class Services extends React.Component {
       'type',
       'projectId',
       'containerPorts',
-      'containerPorts[]',
       'containerPorts[].port',
       'containerPorts[].protocol',
       'environmentId',
       'index',
     ];
-
     const rules = {
       'name': 'string|required',
       'serviceSpecId': 'string|required',
@@ -173,17 +171,16 @@ export default class Services extends React.Component {
       'containerPorts[].port': 'numeric|required|between:1,65535',
       'containerPorts[].protocol': 'required',
     };
-
     const labels = {
       'name': 'Name',
       'serviceSpecId': 'Service Spec',
       'count': 'Count',
       'command': 'Command',
       'containerPorts': 'Container Ports',
+      'containerPorts[]': 'Container Ports',
       'containerPorts[].port': 'Port',
       'containerPorts[].protocol': 'Protocol',
     };
-
     const initials = {
       'name': '',
       'command': '',
@@ -193,19 +190,15 @@ export default class Services extends React.Component {
       'count': 0,
       'environmentId': this.props.store.app.currentEnvironment.id,
     }
-
     const types = {
       'count': 'number',
       'containerPorts[].port': 'number',
     };
-
     const keys = {};
-
     const extra = {
       'containerPorts[].protocol': ['TCP', 'UDP']
     };
-
-    const $hooks = {
+    const hooks = {
       onAdd(instance) {
         console.log('-> onAdd HOOK', instance.path || 'form');
       },
@@ -226,15 +219,8 @@ export default class Services extends React.Component {
       }
     };
 
-    const hooks = {
-      'containerPorts': $hooks,
-      'serviceSpecId': $hooks,
-      'containerPorts[]': $hooks,
-    };
-
     const plugins = { dvr: validatorjs };
-
-    this.form = new MobxReactForm({ fields, rules, labels, initials, extra, hooks, types, keys }, { plugins });
+    this.form = new MobxReactForm({ fields, rules, labels, initials, extra, types, keys}, { plugins, hooks });
 
   }
 
@@ -318,6 +304,9 @@ export default class Services extends React.Component {
         </div>
       )
     }
+    
+    console.log("HELLO FRIENDS", this.form.values())
+
     this.form.$('projectId').set(project.id)
     this.form.state.extra({
       serviceSpecs: serviceSpecs.map(function(serviceSpec){
@@ -444,41 +433,33 @@ export default class Services extends React.Component {
                         <SelectField field={this.form.$('serviceSpecId')} extraKey={"serviceSpecs"} />
                       </Grid>
                       <Grid item xs={12}>
-                        { !this.form.values()['type'] &&
+                        {this.form.values()['type'] === "general" &&
                           <div>
                             <Grid container spacing={24}>
-                                { this.form.$('containerPorts').value.length > 0 &&
                                 <Grid item xs={12}>
-                                <Typography type="subheading"> Container Ports </Typography>
+                                  <Typography type="subheading"> Container Ports </Typography>
                                 </Grid>
-                                }
-                                { this.form.$('containerPorts').value.length > 0 &&
-                                <Grid item xs={12}>
-                                <div>
-                                    {this.form.$('containerPorts').map(port =>
-                                      <Grid container spacing={24}>
-                                        <Grid item xs={4}>
-                                          <InputField field={port.$('port')} fullWidth={false} className={styles.containerPortFormInput} />
-                                        </Grid>
-                                        <Grid item xs={6}>
-                                          <RadioField field={port.$('protocol')} />
-                                        </Grid>
-                                        <Grid item xs={1}>
-                                          <IconButton>
-                                            <CloseIcon onClick={port.onDel} />
-                                          </IconButton>
-                                        </Grid>
+                                {this.form.$('containerPorts').map(function(port){
+                                  return (
+                                    <Grid container spacing={24}>
+                                      <Grid item xs={4}>
+                                        <InputField field={port.$('port')} fullWidth={false} className={styles.containerPortFormInput} />
                                       </Grid>
-                                    )}
-                                </div>
-                                </Grid>
-                                }
-
-
+                                      <Grid item xs={6}>
+                                        <RadioField field={port.$('protocol')} />
+                                      </Grid>
+                                      <Grid item xs={1}>
+                                        <IconButton>
+                                          <CloseIcon onClick={port.onDel} />
+                                        </IconButton>
+                                      </Grid>
+                                    </Grid>                                        
+                                  )
+                                })}
                                 <Grid item xs={12}>
-                                <Button raised type="secondary" onClick={this.form.$('containerPorts').onAdd}>
+                                  <Button raised type="secondary" onClick={this.form.$('containerPorts').onAdd}>
                                     Add container port
-                                </Button>
+                                  </Button>
                                 </Grid>
                             </Grid>
                           </div>

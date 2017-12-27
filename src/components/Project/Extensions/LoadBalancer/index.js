@@ -11,6 +11,8 @@ import Dialog, {
   DialogContentText,
   DialogTitle,
 } from 'material-ui/Dialog';
+import IconButton from 'material-ui/IconButton';
+import CloseIcon from 'material-ui-icons/Close';
 import Input from 'material-ui/Input';
 import InputField from 'components/Form/input-field';
 import SelectField from 'components/Form/select-field';
@@ -21,8 +23,6 @@ import styles from './style.module.css';
 import { graphql, compose, withApollo } from 'react-apollo';
 import gql from 'graphql-tag';
 
-
-@inject("store") @observer
 
 @graphql(gql`
 query Project($slug: String, $environmentId: String){
@@ -39,6 +39,7 @@ query Project($slug: String, $environmentId: String){
       count
       type
       containerPorts {
+        id
         port
         protocol
       }
@@ -54,7 +55,7 @@ query Project($slug: String, $environmentId: String){
     }
   })
 })
-
+@inject("store") @observer
 export default class LoadBalancer extends React.Component {
     
   constructor(props){
@@ -67,6 +68,7 @@ export default class LoadBalancer extends React.Component {
   }
 
   setupForm(){
+    var self = this
     const fields = [
         'service',
         'subdomain',
@@ -116,36 +118,75 @@ export default class LoadBalancer extends React.Component {
             'value': 'UDP'
         }]
     }
+
+    const $hooks = {
+      onAdd(instance) {
+        console.log('-> onAdd HOOK', instance.path || 'form');
+      },
+      onDel(instance) {
+        console.log('-> onDel HOOK', instance.path || 'form');
+      },
+      onSubmit(instance){
+        console.log('-> onSubmit HOOK', instance.path || 'form');
+      },
+      onSuccess(instance){
+        console.log('Form Values!', instance.values())
+      },
+      sync(instance){
+        console.log('sync', instance)
+      },
+      onChange(instance){
+        console.log('instance', instance.value)
+        self.form.update({ portMaps: [] })
+      }
+    };    
+
     const hooks = {
-        onChange(instance){
-            console.log(instance.values())
-        }        
-    }
+        'service': $hooks,
+    };
+
     const plugins = { dvr: validatorjs }
-    this.form = new MobxReactForm({ fields, rules, labels, initials, types, extra, hooks, plugins })
+    this.form = new MobxReactForm({ fields, rules, labels, initials, types, extra, hooks }, {plugins })
   }
   
   onAdd(){
   }
 
   render(){
-    console.log(this.form.values())
     const { viewType, onCancel } = this.props;
     const { loading, project } = this.props.data;
 
     if(loading){
       return (<div>Loading...</div>)
     }
-
+    
+    var self = this
     const extraOptions = project.services.map(function(service){
         return {
           key: service.id,
           value: service.name,
         }
+    })
+
+    var containerPortOptions = []
+    // get port options depending on selected service, if exists
+    if(this.form.$('service').value){
+      project.services.map(function(service){
+        if(service.id === self.form.$('service').value){
+          containerPortOptions = service.containerPorts.map(function(cPort){
+            return {
+              key: cPort.id,
+              value: cPort.port
+            }
+          })
+        }
       })
-      this.form.state.extra({
+    }
+
+    this.form.state.extra({
         service: extraOptions,
-      })
+        containerPort: containerPortOptions,
+    })
 
     let view = (<div></div>);
     
@@ -164,21 +205,39 @@ export default class LoadBalancer extends React.Component {
                         <SelectField field={this.form.$('access')} />
                     </Grid>        
                 </Grid>
-                {this.form.$('service').value !== "" &&
-                    <Grid container spacing={24}>
-                        <Grid item xs={6}>
-                            <InputField field={this.form.$('portMaps[].port')} />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <InputField field={this.form.$('portMaps[].port')} />
-                        </Grid>        
-                        <Grid item xs={12}>
-                            <SelectField field={this.form.$('portMaps[].serviceProtocol')} />
-                        </Grid>        
-                    </Grid>
+                {/* port maps */}
+                {this.form.values()['service'] !== "" &&
+                  <div>
+                    {this.form.$('portMaps').map(function(portMap){
+                        return (
+                            <Grid container spacing={24}>
+                                <Grid item xs={3}>
+                                  <InputField field={portMap.$('port')} />
+                                </Grid>
+                                <Grid item xs={4}>
+                                  <SelectField field={portMap.$('containerPort')} extraKey={'containerPort'} />
+                                </Grid>        
+                                <Grid item xs={4}>
+                                  <SelectField field={portMap.$('serviceProtocol')} />
+                                </Grid>      
+                                <Grid item xs={1}>
+                                  <IconButton>
+                                    <CloseIcon onClick={portMap.onDel} />
+                                  </IconButton>
+                                </Grid>                                                                                          
+                            </Grid>                            
+                        )
+                    })}
+                    <Grid item xs={12}>
+                        <Button raised type="secondary" onClick={this.form.$('portMaps').onAdd}>
+                            Add Port Map
+                        </Button>
+                    </Grid>        
+                    <br/>  
+                  </div>      
                 }
             </form>
-              <Grid item xs={12}>
+            <Grid item xs={12}>
                 <Button raised color="primary" className={styles.rightPad}
                     onClick={this.onAdd.bind(this)}
                     disabled={this.state.addButtonDisabled}
