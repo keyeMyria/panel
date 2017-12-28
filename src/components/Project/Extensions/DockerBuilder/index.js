@@ -88,6 +88,7 @@ export default class DockerBuilder extends React.Component {
       "config": [],
       "form": this.form.values(),
     }
+
     Object.keys(this.props.config.values()).map(function(key){
       userConfig.config.push({ "key": key, "value": self.props.config.values()[key] })
     })

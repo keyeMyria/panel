@@ -132,9 +132,46 @@ export default class LoadBalancer extends React.Component {
     const plugins = { dvr: validatorjs }
     this.form = new MobxReactForm({ fields, rules, labels, initials, types, extra, hooks }, {plugins })
   }
-  
-  onAdd(){
+
+  onError(form){
+    // todo
   }
+  
+  onSuccess(form){
+    // convert obj -> { "config": [kv] }
+    var self = this
+    var userConfig = {
+      "config": [],
+      "form": this.form.values(),
+    }
+    if(this.props.config.fields.size > 0){
+      Object.keys(this.props.config.values()).map(function(key){
+        userConfig.config.push({ "key": key, "value": self.props.config.values()[key] })
+      })
+    }
+
+    if(this.props.viewType === 'edit'){
+        this.props.createExtension({
+          variables: {
+            'projectId': this.props.project.id,
+            'extensionSpecId': this.props.extensionSpec.id,
+            'config': userConfig,
+            'environmentId': this.props.store.app.currentEnvironment.id,
+          }
+        }).then(({ data }) => {
+          this.setState({ addButtonDisabled: false })
+          this.props.refetch()
+          this.props.onCancel()
+        });
+    }
+  }
+
+  onAdd(extension, event){
+    this.setState({ addButtonDisabled: true })
+    if(this.form){
+      this.form.onSubmit(event, { onSuccess: this.onSuccess.bind(this), onError: this.onError.bind(this) })
+    }
+  }    
 
   render(){
     const { viewType, onCancel } = this.props;
@@ -159,7 +196,7 @@ export default class LoadBalancer extends React.Component {
         if(service.id === self.form.$('service').value){
           containerPortOptions = service.containerPorts.map(function(cPort){
             return {
-              key: cPort.id,
+              key: cPort.port,
               value: cPort.port
             }
           })

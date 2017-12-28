@@ -161,6 +161,7 @@ export default class ServiceSpecs extends React.Component {
   isSelected(id){
     return this.state.selected === id
   }
+  
   handleClick(e, serviceSpec, index){
     this.form.$('name').set(serviceSpec.name);
     this.form.$('cpuRequest').set(serviceSpec.cpuRequest);
