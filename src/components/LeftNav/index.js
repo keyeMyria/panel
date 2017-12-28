@@ -15,18 +15,12 @@ import { FormControl } from 'material-ui/Form';
 import Input, { InputLabel } from 'material-ui/Input';
 import Select from 'material-ui/Select';
 import { MenuItem } from 'material-ui/Menu';
-
-
-
 import ExpandLess from 'material-ui-icons/ExpandLess';
 import ExpandMore from 'material-ui-icons/ExpandMore';
 import ServiceSpecIcon from 'material-ui-icons/Description';
 import ExtensionIcon from 'material-ui-icons/Extension';
 import EnvironmentVariableIcon from 'material-ui-icons/VpnKey';
 import EnvironmentIcon from 'material-ui-icons/Public';
-
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
 
 @withRouter
 @inject("store") @observer
@@ -84,7 +78,7 @@ export default class LeftNav extends React.Component {
               <ListItemText primary="Admin" />
               {this.state.open ? <ExpandLess /> : <ExpandMore />}
             </ListItem>
-            <Collapse in={this.state.open} transitionDuration="auto" unmountOnExit>
+            <Collapse in={this.state.open} unmountOnExit>
               <NavLink to="/admin/environments" exact activeClassName={styles.active}>
                 <ListItem button>
                   <ListItemIcon>
@@ -122,7 +116,7 @@ export default class LeftNav extends React.Component {
           <Divider/>
           <List>
           { projectTitleItem }
-          <Collapse in={this.state.openProject} transitionDuration="auto" unmountOnExit>
+          <Collapse in={this.state.openProject} unmountOnExit>
             {this.props.store.app.leftNavItems.map(nav =>
               <NavLink to={nav.slug} key={nav.key} exact activeClassName={styles.active}>
                 <ListItem button>
@@ -142,7 +136,7 @@ export default class LeftNav extends React.Component {
           {this.props.store.app.leftNavProjectTitle !== '' &&
           <ListItem>
             <FormControl>
-              <InputLabel>Current Env</InputLabel>
+              <InputLabel>Current Environment</InputLabel>
               <Select
               classes={{
                 select: styles.currentEnv,

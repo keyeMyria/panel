@@ -34,6 +34,7 @@ const inlineStyles = {
 }
 
 @inject("store") @observer
+
 @graphql(gql`
 query Project($slug: String, $environmentId: String){
   project(slug: $slug, environmentId: $environmentId) {

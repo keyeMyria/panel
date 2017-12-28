@@ -7,7 +7,6 @@ import Table, { TableCell, TableHead, TableBody, TableRow } from 'material-ui/Ta
 import Paper from 'material-ui/Paper';
 import Drawer from 'material-ui/Drawer';
 import AppBar from 'material-ui/AppBar';
-import Input from 'material-ui/Input';
 import Dialog, {
   DialogActions,
   DialogContent,
@@ -18,7 +17,6 @@ import { MenuItem, MenuList } from 'material-ui/Menu';
 import InputField from 'components/Form/input-field';
 import TextareaField from 'components/Form/textarea-field';
 import SelectField from 'components/Form/select-field';
-import EnvVarSelectField from 'components/Form/envvar-select-field';
 import AddIcon from 'material-ui-icons/Add';
 import styles from './style.module.css';
 import { observer } from 'mobx-react';
@@ -164,16 +162,13 @@ export default class EnvironmentVariables extends React.Component {
       'key',
       'value',
       'created',
-      'version',
       'type',
       'scope',
       'environmentId',
       'projectId',
-      'selectedVersionIndex',
     ];
     const initials = {
       'projectId': '',
-      'selectedVersionIndex': '',
       'index': '',
     }
     const rules = {
@@ -185,7 +180,6 @@ export default class EnvironmentVariables extends React.Component {
       'value': 'Value',
       'scope': 'Scope',
       'environmentId': 'Environment',
-      'version': 'Version',
     };
     const types = {};
     const keys = {};
@@ -195,7 +189,7 @@ export default class EnvironmentVariables extends React.Component {
 
     const extra = {
       'type': [{key: 'build', value: 'Build'}, {key: 'env', value: 'Normal' },{key: 'file', value: 'File'}],
-      'scope': [{key: 'extension', value: 'Extension'}, {key: 'global', value: 'Global'}],
+      'scope': [{key: 'global', value: 'Global'}, {key: 'extension', value: 'Extension'}],
       'environmentId': [],
     };
     const hooks = {};
@@ -229,24 +223,12 @@ export default class EnvironmentVariables extends React.Component {
     }
   }
 
-  onClickVersion(versionIndex){
-    this.form.$('selectedVersionIndex').set(versionIndex)
-    this.form.$('scope').set(this.props.data.environmentVariables[this.form.values()['index']].versions[versionIndex].scope)
-  }
-
   onError(form){
-    // TODO
     return
-  }
-
-  replaceEnvVarValue(e){
-    this.form.$('value').set(this.props.data.environmentVariables[this.form.values()['index']].versions[this.form.values()['selectedVersionIndex']].value);
-    this.onSubmit(e)
   }
 
   onSuccess(form){
     this.form.$('key').set('disabled', false)
-    var self = this
     if(this.form.values()['id'] === ""){
       this.props.createEnvironmentVariable({
         variables: form.values(),
@@ -261,7 +243,6 @@ export default class EnvironmentVariables extends React.Component {
       }).then(({data}) => {
         this.props.data.refetch()
         this.form.$('id').set(data.updateEnvironmentVariable.id)
-        this.form.$('selectedVersionIndex').set('')
         this.form.$('key').set('disabled', true)
         this.setState({ saving: false })
       });
@@ -295,14 +276,6 @@ export default class EnvironmentVariables extends React.Component {
       });
       this.setState({ dialogOpen: false })
     }
-  }
-
-  showPreviousVersionValue() {
-    const environmentVariables = this.props.data.environmentVariables;
-    return this.form.values()['index'] !== '' &&
-     environmentVariables[this.form.values()['index']] &&
-     environmentVariables[this.form.values()['index']].versions[this.form.values()['selectedVersionIndex']] &&
-     environmentVariables[this.form.values()['index']].versions[this.form.values()['selectedVersionIndex']].value !== environmentVariables[this.form.values()['index']].value;
   }
 
   render() {
@@ -353,9 +326,6 @@ export default class EnvironmentVariables extends React.Component {
                 </TableCell>
                 <TableCell>
                   Created
-                </TableCell>
-                <TableCell>
-                  Version
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -444,86 +414,29 @@ export default class EnvironmentVariables extends React.Component {
               <div className={styles.drawerBody}>
                 <Grid container spacing={24} className={styles.grid}>
                   <Grid item xs={12}>
-                    <SelectField field={this.form.$('scope')} autoWidth={true} />
+                    <SelectField field={this.form.$('scope')} fullWidth={true} />
                   </Grid>
                   <Grid item xs={12}>
-                    <SelectField field={this.form.$('environmentId')} autoWidth={true} extraKey='environmentId' />
+                    <SelectField field={this.form.$('environmentId')} fullWidth={true} extraKey='environmentId' />
                   </Grid>
 
                   {(this.form.$('type').value === 'env' || this.form.$('type').value === 'build') &&
+                  <Grid item xs={12}>
                     <Grid item xs={12}>
-                      <Grid item xs={6}>
-                        <InputField field={this.form.$('key')} fullWidth={true} />
-                      </Grid>
-                      <Grid item xs={6}>
-                        <InputField field={this.form.$('value')} fullWidth={true} />
-                      </Grid>
-                      {this.showPreviousVersionValue() &&
-                        <Grid item xs={6}>
-                          <Input value={environmentVariables[this.form.values()['index']].versions[this.form.values()['selectedVersionIndex']].value} fullWidth={true} disabled />
-                        </Grid>
-                      }
+                      <InputField field={this.form.$('key')} fullWidth={true} />
                     </Grid>
+                    <Grid item xs={12}>
+                      <InputField field={this.form.$('value')} fullWidth={true} />
+                    </Grid>
+                  </Grid>
                   }
 
                   {this.form.$('type').value === 'file' &&
+                  <Grid item xs={12}>
                     <Grid item xs={12}>
-                      <Grid item xs={5}>
-                        <InputField field={this.form.$('key')} fullWidth={true} />
-                      </Grid>
-                      <br/>
-                      <Grid item xs={5}>
-                        <TextareaField field={this.form.$('value')} />
-                      </Grid>
-                      {this.showPreviousVersionValue() &&
-                        <Grid item xs={6}>
-                          <textarea style={{ width: 300, height: 200, scrollable: 'true' }} readOnly>
-                            {environmentVariables[this.form.values()['index']].versions[this.form.values()['selectedVersionIndex']].value}
-                          </textarea>
-                        </Grid>
-                      }
+                      <InputField field={this.form.$('key')} fullWidth={true} />
                     </Grid>
-                  }
-
-                  {this.showPreviousVersionValue() &&
-                    <Grid item xs={12}>
-                      <Button color="default"
-                        raised onClick={this.replaceEnvVarValue.bind(this)}>
-                        Revert
-                      </Button>
-                    </Grid>
-                    }
-
                     <br/>
-
-                    <Grid item xs={12}>
-                      <Button color="primary"
-                        className={styles.buttonSpacing}
-                        disabled={this.state.loading}
-                        type="submit"
-                        raised
-                        onClick={e => this.onSubmit(e)}>
-                        Save
-                      </Button>
-                      {this.form.values()['id'] &&
-                        <Button
-                          disabled={this.state.saving}
-                          color="accent"
-                          onClick={()=>this.setState({ dialogOpen: true })}>
-                          Delete
-                        </Button>
-                      }
-                      <Button
-                        color="primary"
-                        onClick={this.closeDrawer.bind(this)}>
-                        Cancel
-                      </Button>
-                    </Grid>
-
-                    <br/>
-                    {environmentVariables[this.form.values()['index']] != null &&
-                     environmentVariables[this.form.values()['index']].versions.length > 0 &&
-                     <div>
                     <Grid item xs={12}>
                       <Paper className={styles.tablePaper}>
                         <Toolbar>
@@ -583,8 +496,32 @@ export default class EnvironmentVariables extends React.Component {
                         </Table>
                       </Paper>
                     </Grid>
-                  </div>
+                  </Grid>
                   }
+
+                  <Grid item xs={12}>
+                    <Button color="primary"
+                      className={styles.buttonSpacing}
+                      disabled={this.state.loading}
+                      type="submit"
+                      raised
+                      onClick={e => this.onSubmit(e)}>
+                      Save
+                    </Button>
+                    {this.form.values()['id'] &&
+                      <Button
+                        disabled={this.state.saving}
+                        color="accent"
+                        onClick={()=>this.setState({ dialogOpen: true })}>
+                        Delete
+                      </Button>
+                    }
+                    <Button
+                      color="primary"
+                      onClick={this.closeDrawer.bind(this)}>
+                      Cancel
+                    </Button>
+                  </Grid>
                 </Grid>
               </div>
             </form>

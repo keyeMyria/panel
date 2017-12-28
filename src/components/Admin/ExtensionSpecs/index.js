@@ -159,7 +159,7 @@ export default class ExtensionSpecs extends React.Component {
       'name': 'Name',
       'key': 'Key',
       'type': 'Type',
-      'config': "Form Specification",
+      'config': 'Config',
       'config[].key': 'Key',
       'config[].value': 'Value',
       'component': 'React Component',
@@ -187,9 +187,8 @@ export default class ExtensionSpecs extends React.Component {
       }],
     };
 
-    const hooks = {
-    };
-    const handlers = {}
+    const hooks = {};
+    const handlers = {};
     const plugins = { dvr: validatorjs };
     this.form = new MobxReactForm({ fields, rules, labels, initials, extra, hooks, types }, { handlers }, { plugins })
   }
@@ -204,47 +203,31 @@ export default class ExtensionSpecs extends React.Component {
   }
 
   handleClick(e, extension, index){
-
-    var config = {}
-    if(extension.config){
-      config = extension.config.config
-    }
-    
     this.form.$('id').set(extension.id)
     this.form.$('index').set(index)
     this.form.$('name').set(extension.name)
     this.form.$('key').set(extension.key)
-    if(extension.environment){
-      this.form.$('environmentId').set(extension.environment.id)
-    }
-    this.form.update({ config: config })
+    this.form.$('environmentId').set(extension.environment.id)
+    this.form.update({ config: extension.config })
     this.form.$('component').set(extension.component)
     this.form.$('type').set(extension.type)
-
-    if(extension.environment){
-      this.form.$('environmentId').set(extension.environment.id)
-    }
 
     this.openDrawer()
   }
 
   onSuccess(form){
     this.setState({ saving: true })
-    var values = this.form.values()
 
-    // turning [Json!]! -> Json!
-    values.config = { "config": values.config }
-
-    if(values.id === ''){
+    if(this.form.values().id === ''){
       this.props.createExtensionSpec({
-        variables: values,
+        variables: this.form.values(),
       }).then(({data}) => {
         this.props.data.refetch()
         this.closeDrawer()
       });
     } else {
       this.props.updateExtensionSpec({
-        variables: values,
+        variables: this.form.values(),
       }).then(({data}) => {
         this.props.data.refetch()
         this.closeDrawer()
@@ -264,7 +247,6 @@ export default class ExtensionSpecs extends React.Component {
   }
 
   onError(){
-    //todo
     return
   }
 
@@ -282,9 +264,6 @@ export default class ExtensionSpecs extends React.Component {
         </div>
       )
     }
-
-    var self = this
-
 
     const envVarOptions = environmentVariables.map(function(envVar){
       return {
@@ -384,26 +363,26 @@ export default class ExtensionSpecs extends React.Component {
                     <InputField field={this.form.$('key')} fullWidth={true} />
                   </Grid>
                   <Grid item xs={12}>
-                    <SelectField field={this.form.$('environmentId')} autoWidth={true} extraKey='environmentId' />
+                    <SelectField field={this.form.$('environmentId')} autoWidth={true} extraKey='environmentId' fullWidth={true} />
                   </Grid>
                   <Grid item xs={12}>
-                    <SelectField field={this.form.$('type')} autoWidth={true} />
+                    <SelectField field={this.form.$('type')} fullWidth={true} />
                   </Grid>
                   <Grid item xs={12}>
-                    <InputField field={this.form.$('component')} fullWith={true} />
+                    <InputField field={this.form.$('component')} fullWidth={true} />
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography type="subheading">Config </Typography>
+                    <Typography type="title">Config</Typography>
                   </Grid>
                   <Grid item xs={12}>
-                    {this.form.$('config').map(function(kv){
+                    {this.form.$('config').map((kv) => {
                         return (
-                        <Grid container spacing={24}>
-                            <Grid item xs={4}>
-                                <InputField field={kv.$('key')} fullWidth={false} className={styles.containerPortFormInput} />
+                        <Grid container spacing={24} key={kv.id}>
+                            <Grid item xs={5}>
+                                <InputField field={kv.$('key')} fullWidth={true} />
                             </Grid>
-                            <Grid item xs={7}>
-                                <EnvVarSelectField field={kv.$('value')} autoWidth={true} extraKey="config" />
+                            <Grid item xs={5}>
+                                <EnvVarSelectField field={kv.$('value')} fullWidth={true} extraKey="config" />
                             </Grid>
                             <Grid item xs={1}>
                             <IconButton>
@@ -449,7 +428,7 @@ export default class ExtensionSpecs extends React.Component {
                           Save
                     </Button>
 
-                    {this.form.values()['id'] != '' &&
+                    {this.form.values()['id'] !== '' &&
                       <Button
                         disabled={this.state.saving}
                         color="accent"

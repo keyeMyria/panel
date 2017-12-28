@@ -30,7 +30,7 @@ export default class Services extends React.Component {
 
   render() {
     const { value } = this.state;
-    const { project, store, match } = this.props;
+    const { match, store } = this.props;
 
     return (
       <div className={styles.root}>
