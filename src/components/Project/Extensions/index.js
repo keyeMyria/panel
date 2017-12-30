@@ -23,6 +23,8 @@ import validatorjs from 'validatorjs';
 import MobxReactForm from 'mobx-react-form';
 import styles from './style.module.css';
 import _ from "lodash";
+import fs from 'fs';
+import path from 'path';
 
 @inject("store") @observer
 @graphql(gql`
@@ -373,6 +375,24 @@ export default class Extensions extends React.Component {
     )
   }
 
+  // This looks for the custom component specified
+  // in the ExtensionSpec within the Extensions dir/
+  // and returns a rendered component view
+  renderCustomComponent(){
+    if(!this.state.extensionDrawer.extension){
+      return (<div></div>)
+    }
+
+    let { extension } = this.state.extensionDrawer
+
+    let component = extension.component
+
+    return (
+        <div>
+        </div>
+    )
+  }
+
   renderExtensionsDrawer() {
     if (!this.state.extensionDrawer.extension) {
       return null 
@@ -387,11 +407,11 @@ export default class Extensions extends React.Component {
     if(extension.extensionSpec){
       name = extension.extensionSpec.name
       type = extension.extensionSpec.type
-      
+
       extension.extensionSpec.config.map(function(obj){
         let _obj = _.find(extension.config.config, {key: obj.key});
         if (_obj) {
-          config.push(_obj) 
+          config.push(_obj)
         } else {
           config.push(obj) 
         }
@@ -401,7 +421,7 @@ export default class Extensions extends React.Component {
       extension.config.map(function(obj){
         let _obj = _.clone(obj)
         _obj.value = ""
-        config.push(_obj) 
+        config.push(_obj)
         return null
       })
     }
@@ -457,7 +477,7 @@ export default class Extensions extends React.Component {
             {config_jsx}
           </Grid>
           <Grid item xs={12}>
-            { this.state.customConfigForm }
+            { this.renderCustomComponent() }
           </Grid>
           <Grid item xs={12}>
             <Button raised color="primary" className={styles.rightPad}
