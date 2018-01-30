@@ -93,7 +93,7 @@ export default class App extends React.Component {
   }
 
   render() {
-    const { loading, projects, environments } = this.props.data;
+    const { loading, projects, environments, user } = this.props.data;
 
     if(this.props.data.networkStatus === 8){
       return (
@@ -121,10 +121,9 @@ export default class App extends React.Component {
         </div>
       )
     }
-    
     if (loading) {
       return (<div>Loading...</div>);
-    } else if (this.state.redirectToLogin) {
+    } else if (this.state.redirectToLogin || !user) {
       return <Redirect to={{pathname: '/login', state: { from: this.props.location }}}/>
     } else {
       if(environments.length > 0 && this.props.store.app.currentEnvironment.id === ''){
@@ -141,16 +140,16 @@ export default class App extends React.Component {
               <div className={styles.children}>
                 <Switch>
                   <Route exact path='/' render={(props) => (
-                    <Dashboard projects={projects} />
+                    <Dashboard {...props} />
                   )} />
                   <Route exact path='/create' render={(props) => (
-                    <Create projects={projects} type={"create"} {...props} />
+                    <Create type={"create"} {...props} />
                   )} />
                   <Route path='/admin' render={(props) => (
-                    <Admin data={this.props.data} projects={projects} socket={socket} {...props} />
+                    <Admin {...props} />
                   )} />
                   <Route path='/projects/:slug' render={(props) => (
-                    <Project socket={socket} {...props} />
+                    <Project {...props} />
                   )} />
                 </Switch>
               </div>
