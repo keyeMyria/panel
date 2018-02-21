@@ -58,6 +58,7 @@ export default class Create extends React.Component {
       projectType: "docker",
       bookmarked: true,
       previousGitUrl: "",
+      gitBranch: "master",
     }
   }
 
@@ -78,6 +79,7 @@ export default class Create extends React.Component {
       'gitProtocol',
       'gitUrl',
       'environmentId',
+      'gitBranch',
     ];
     const rules = {};
     const types = {};
@@ -220,9 +222,16 @@ export default class Create extends React.Component {
                 </Typography>
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid item xs={8}>
                 {urlTextField}
               </Grid>
+              <Grid item xs={4}>
+                <FormControl  className={styles.formControl} error>
+                  <InputLabel htmlFor="name-error">Default Branch</InputLabel>
+                  <Input id="name-error" value={this.state.gitBranch} onChange={(e) => this.setState({ gitBranch: e.target.value })} />
+                  <FormHelperText>{this.state.msg}</FormHelperText>
+                </FormControl>
+              </Grid>              
 
               <Grid item xs={12}>
                 <FormControl
