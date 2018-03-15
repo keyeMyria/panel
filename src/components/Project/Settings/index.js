@@ -182,6 +182,10 @@ export default class Settings extends React.Component {
               </CardActions>
             </Card>
           </Grid>                   
+          <Grid item xs={3}>
+          </Grid>
+          <Grid item xs={9}>
+          </Grid>
         </Grid>
       </div>
     );
