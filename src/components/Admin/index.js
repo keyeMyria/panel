@@ -8,6 +8,7 @@ import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import ServiceSpecs from './ServiceSpecs';
 import Extensions from './Extensions';
+import ProjectTypes from './ProjectTypes';
 import Secrets from './Secrets';
 import Environments from './Environments';
 import Users from './Users';
@@ -54,6 +55,10 @@ export default class Admin extends React.Component {
           <Route path='/admin/extensions' render={(props) => (
             <Extensions/>
           )}/>
+
+          <Route path='/admin/projectTypes' render={(props) => (
+            <ProjectTypes/>
+          )}/>          
 
           <Route path='/admin/users' render={(props) => (
             <Users data={this.props.data} socket={this.props.socket} />

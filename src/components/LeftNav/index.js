@@ -15,6 +15,7 @@ import ExpandLess from 'material-ui-icons/ExpandLess';
 import ExpandMore from 'material-ui-icons/ExpandMore';
 import ServiceSpecIcon from 'material-ui-icons/Description';
 import ExtensionIcon from 'material-ui-icons/Extension';
+import ProjectTypesIcon from 'material-ui-icons/Subscriptions';
 import SecretIcon from 'material-ui-icons/VpnKey';
 import EnvironmentIcon from 'material-ui-icons/Public';
 import UsersIcon from 'material-ui-icons/AccountCircle';
@@ -104,6 +105,14 @@ export default class LeftNav extends React.Component {
                       <ListItemText inset primary="Extensions" />
                     </ListItem>
                   </NavLink>
+                  <NavLink to="/admin/projectTypes" exact activeClassName={styles.active}>
+                    <ListItem button>
+                      <ListItemIcon>
+                        <ProjectTypesIcon />
+                      </ListItemIcon>
+                      <ListItemText inset primary="Project Types" />
+                    </ListItem>
+                  </NavLink>                  
                   <NavLink to="/admin/users" exact activeClassName={styles.active}>
                     <ListItem button>
                       <ListItemIcon>
