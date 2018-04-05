@@ -5,31 +5,31 @@ import Typography from 'material-ui/Typography';
 
 import styles from './style.module.css';
 
-export default class Secrets extends React.Component {
-    constructor(props){
-      super(props)
-      this.state = {
-        addEnvVarMenuOpen: false,
-        saving: false,
-        drawerOpen: false,
-        dialogOpen:false,
-      }
+export default class ProjectTypes extends React.Component {
+  constructor(props){
+    super(props)
+    this.state = {
+      addEnvVarMenuOpen: false,
+      saving: false,
+      drawerOpen: false,
+      dialogOpen:false,
     }
+  }
 
-    render() {
-        return (
+  render() {
+    return (
+      <div>
+        <Paper className={styles.tablePaper}>
+          <Toolbar>
             <div>
-                <Paper className={styles.tablePaper}>
-                    <Toolbar>
-                    <div>
-                        <Typography variant="title">
-                            Project Types
-                        </Typography>
-                    </div>
-                    </Toolbar>
-                </Paper>
+              <Typography variant="title">
+                  Project Types
+              </Typography>
             </div>
-        )
-    }
+          </Toolbar>
+        </Paper>
+      </div>
+    )
+  }
 }
   
