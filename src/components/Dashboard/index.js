@@ -8,7 +8,7 @@ import Loading from 'components/Utils/Loading';
 import Button from 'material-ui/Button';
 import gql from 'graphql-tag';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import ExpansionPanel, {
   ExpansionPanelSummary,
   ExpansionPanelActions,
@@ -36,7 +36,9 @@ import styles from './style.module.css';
         created
       }
       project {
+        id
         repository
+        slug
       }
       state
     }
@@ -106,6 +108,7 @@ export default class Dashboard extends React.Component {
     if (expanded === null) {
       expanded = 0
     }    
+
     return (
       <div className={styles.root}>
         <Grid container spacing={24} className={styles.info}>
@@ -176,7 +179,9 @@ export default class Dashboard extends React.Component {
                   key={idx} expanded={expanded === idx} onChange={this.handleChange(idx)}> 
                   <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}> 
                   <div> 
-                    <Typography variant="body1" style={{ fontSize: 18, marginBottom: 15 }}> { release.project.repository } </Typography>                     
+                    <Typography variant="body1" style={{ fontSize: 18, marginBottom: 15 }}> 
+                      <Link to={'/projects/' + release.project.slug + '/releases'}>{release.project.repository}</Link>
+                    </Typography>                     
                     {release.state === 'waiting' && <div key={"waiting"+release.id} className=  {styles.innerWaiting}></div>}  
                     {release.state === 'failed' && <div key={"failed"+release.id} className={styles.innerFailed}></div>}
                     {release.state === 'complete' && <div key={"complete"+release.id} className={styles.innerComplete}></div>}
