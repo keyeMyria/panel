@@ -177,10 +177,6 @@ export default class Dashboard extends React.Component {
                   <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}> 
                   <div> 
                     <Typography variant="body1" style={{ fontSize: 18, marginBottom: 15 }}> { release.project.repository } </Typography>                     
-                    {release.state === 'waiting' && <div key={"waiting"+release.id} className=  {styles.innerWaiting}></div>}  
-                    {release.state === 'failed' && <div key={"failed"+release.id} className={styles.innerFailed}></div>}
-                    {release.state === 'complete' && <div key={"complete"+release.id} className={styles.innerComplete}></div>}
-
                     <Typography variant="body1" style={{ fontSize: 14 }}> <b> { release.headFeature.message } </b> </Typography> 
                     <Typography variant="body2" style={{ fontSize: 12 }}>{ release.headFeature.user } created on { new Date(release.headFeature.created).toString() } at { new Date(release.headFeature.created).toTimeString() } </Typography> 
                   </div>
