@@ -255,6 +255,7 @@ export default class Projects extends React.Component {
               if(projectExtension.extension.key === "kubernetesloadbalancers" && projectExtension.environment.id === env.id) {
                 if(projectExtension.customConfig.type === "internal") {
                   console.log('updating project extension ' + projectExtension.extension.name)
+                  console.log(projectExtension)
                   self.props.updateProjectExtension({
                     variables: {
                       id: projectExtension.id,
